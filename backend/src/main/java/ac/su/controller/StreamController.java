@@ -1,22 +1,34 @@
-package ac.su.controller;
+StreamController.java
+        package ac.su.controller;
 
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
-import org.springframework.messaging.handler.annotation.Payload;
 
 @Controller
 public class StreamController {
 
-  @MessageMapping("/stream/start")
-  @SendTo("/topic/stream/receive")
-  public String startStream(@Payload String sdp) {
-    return sdp;
-  }
+    @MessageMapping("/stream/start")
+    @SendTo("/topic/start")
+    public String startStream() {
+        return "STARTED";
+    }
 
-  @MessageMapping("/stream/call")
-  @SendTo("/topic/stream/answer")
-  public String callStream(@Payload String sdp) {
-    return sdp;
-  }
+    @MessageMapping("/stream/offer")
+    @SendTo("/topic/offer")
+    public String sendOffer(String offer) {
+        return offer;
+    }
+
+    @MessageMapping("/stream/answer")
+    @SendTo("/topic/answer")
+    public String sendAnswer(String answer) {
+        return answer;
+    }
+
+    @MessageMapping("/stream/ice")
+    @SendTo("/topic/ice")
+    public String sendIceCandidate(String candidate) {
+        return candidate;
+    }
 }
