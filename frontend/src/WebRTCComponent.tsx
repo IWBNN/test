@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 
-const SERVER_URL = 'https://3.38.151.63/ws';
+const SERVER_URL = 'https://suportscore.site';
 
 const WebRTCComponent = () => {
     const [stompClient, setStompClient] = useState<Client | null>(null);

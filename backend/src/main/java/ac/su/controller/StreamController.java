@@ -1,5 +1,4 @@
-StreamController.java
-        package ac.su.controller;
+package ac.su.controller;
 
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
