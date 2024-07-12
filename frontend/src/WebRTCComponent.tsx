@@ -2,6 +2,12 @@ import React, { useRef, useEffect, useState } from 'react';
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 
+// 하드코딩된 대상 호스트
+// 배포 시에 완성되는 '.env' 파일을 두고,
+// 주요 상수 명칭들 중 [AUTH_|STREAM_|PAYMENT_]API_HOST 라는 이름을 두면 좋다
+// 배포 시마다, 해당 파일을 읽어서 아래 변수 완성하게 함
+
+// '/deploy' 경로에 있는 '.env' 파일 내부에서 API_HOST 상수의 값을 읽어 아래 변수 완성
 const SERVER_URL = 'https://suportscore.site';
 
 const WebRTCComponent = () => {
@@ -23,22 +29,22 @@ const WebRTCComponent = () => {
             debug: (str) => console.log(str),
             onConnect: () => {
                 console.log('Connected to WebSocket');
-                client.subscribe('/topic/offer', (message) => {
+                client.subscribe(`${SERVER_URL}/topic/offer`, (message) => {
                     console.log('Received offer:', message.body);
                     const offer = JSON.parse(message.body);
                     handleOffer(offer);
                 });
-                client.subscribe('/topic/answer', (message) => {
+                client.subscribe(`${SERVER_URL}/topic/answer`, (message) => {
                     console.log('Received answer:', message.body);
                     const answer = JSON.parse(message.body);
                     handleAnswer(answer);
                 });
-                client.subscribe('/topic/ice', (message) => {
+                client.subscribe(`${SERVER_URL}/topic/ice`, (message) => {
                     console.log('Received ICE candidate:', message.body);
                     const candidate = JSON.parse(message.body);
                     handleNewICECandidateMsg(candidate);
                 });
-                client.subscribe('/topic/start', () => {
+                client.subscribe(`${SERVER_URL}/topic/start`, () => {
                     console.log('Received start signal');
                     setCanStartRemoteStream(true);
                 });
@@ -62,7 +68,7 @@ const WebRTCComponent = () => {
         await peerConnection.current.setRemoteDescription(new RTCSessionDescription(offer));
         const answer = await peerConnection.current.createAnswer();
         await peerConnection.current.setLocalDescription(answer);
-        stompClient?.publish({ destination: '/app/stream/answer', body: JSON.stringify(answer) });
+        stompClient?.publish({ destination: `${SERVER_URL}/app/stream/answer`, body: JSON.stringify(answer) });
 
         // ICE 후보가 대기 중인 경우 처리
         while (iceCandidatesQueue.current.length > 0) {
@@ -112,7 +118,7 @@ const WebRTCComponent = () => {
             if (event.candidate) {
                 console.log('Sending ICE candidate:', event.candidate);
                 stompClient?.publish({
-                    destination: '/app/stream/ice',
+                    destination: `${SERVER_URL}/app/stream/ice`,
                     body: JSON.stringify(event.candidate),
                 });
             }
@@ -139,11 +145,11 @@ const WebRTCComponent = () => {
         peerConnection.current = createPeerConnection();
 
         setIsLocalStreamStarted(true);
-        stompClient?.publish({ destination: '/app/stream/start' });
+        stompClient?.publish({ destination: `${SERVER_URL}/app/stream/start` });
 
         const offer = await peerConnection.current.createOffer();
         await peerConnection.current.setLocalDescription(offer);
-        stompClient?.publish({ destination: '/app/stream/offer', body: JSON.stringify(offer) });
+        stompClient?.publish({ destination: `${SERVER_URL}/app/stream/offer`, body: JSON.stringify(offer) });
     };
 
     const startRemoteStream = async () => {
